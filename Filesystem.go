@@ -189,7 +189,6 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-// 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
 }
