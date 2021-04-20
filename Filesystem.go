@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-// creates a directory recursively
+// creates a directory of directory or directories.
 func Mkdir(paths interface{}, mode os.FileMode) {
 
 	for _, pathName := range toIterable(paths) {
@@ -21,15 +22,28 @@ func Mkdir(paths interface{}, mode os.FileMode) {
 
 }
 
-func Copy(originFile string, targetFile string) {
-	
+// copies a file
+func Copy(srcFileName string, dstFileName string) {
+
+	srcFile, err := os.Open(srcFileName)
+	if err != nil{
+		panic(err)
+	}
+
+	dstFile, err := os.OpenFile(dstFileName, os.O_CREATE|os.O_WRONLY, 0666)
+
+	if err != nil{
+		panic(err)
+	}
+
+	_, err = io.Copy(dstFile, srcFile)
+
+	if err != nil{
+		panic(err)
+	}
 }
 
-func CopyWithOverwrite(originFile string, targetFile string) {
-
-}
-
-//checks the existence of files or directories
+// checks the existence of files or directories
 func Exists(paths interface{}) bool {
 	for _, pathName := range toIterable(paths) {
 		_, err := os.Stat(pathName) // For read access.
@@ -41,6 +55,7 @@ func Exists(paths interface{}) bool {
 	return true
 }
 
+// creates new files
 func Touch(files interface{}) {
 	for _, fileName := range toIterable(files) {
 		if !Exists(fileName) {
@@ -56,6 +71,7 @@ func Touch(files interface{}) {
 	}
 }
 
+// sets access and modification time of files
 func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
 	for _, fileName := range toIterable(files) {
 
@@ -77,6 +93,7 @@ func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
 	}
 }
 
+// change mode for an array of files or directories.
 func Chmod(files interface{}, mode os.FileMode) {
 	for _, fileName := range toIterable(files) {
 
@@ -90,6 +107,7 @@ func Chmod(files interface{}, mode os.FileMode) {
 	}
 }
 
+// change mode for an array of files or directories with recursive
 func ChmodWithRecur(files interface{}, mode os.FileMode) {
 
 	for _, fileName := range toIterable(files) {
@@ -113,6 +131,7 @@ func ChmodWithRecur(files interface{}, mode os.FileMode) {
 	}
 }
 
+// change the owner of an array of files or directories
 func Chown(files interface{}, user, group int) {
 
 	for _, fileName := range toIterable(files) {
@@ -128,6 +147,7 @@ func Chown(files interface{}, user, group int) {
 	}
 }
 
+// change the owner of an array of files or directories recursive
 func ChownWithRecur(files interface{}, user, group int) {
 
 	for _, fileName := range toIterable(files) {
@@ -152,8 +172,9 @@ func ChownWithRecur(files interface{}, user, group int) {
 	}
 }
 
-func GetFilesAndDirs(dirPth string) (files []string, dirs []string) {
-	dir, err := ioutil.ReadDir(dirPth)
+// resolves files and directories
+func GetFilesAndDirs(dirPath string) (files []string, dirs []string) {
+	dir, err := ioutil.ReadDir(dirPath)
 	if err != nil {
 		panic(err)
 	}
@@ -162,25 +183,27 @@ func GetFilesAndDirs(dirPth string) (files []string, dirs []string) {
 
 	for _, fi := range dir {
 		if fi.IsDir() { // 目录, 递归遍历
-			dirs = append(dirs, dirPth+PthSep+fi.Name())
-			_, _ = GetFilesAndDirs(dirPth + PthSep + fi.Name())
+			dirs = append(dirs, dirPath+PthSep+fi.Name())
+			_, _ = GetFilesAndDirs(dirPath + PthSep + fi.Name())
 
 		} else {
-			files = append(files, dirPth+PthSep+fi.Name())
+			files = append(files, dirPath+PthSep+fi.Name())
 		}
 	}
 
 	return files, dirs
 }
 
-func Rename(originFile string, targetFile string) {
-	err := os.Rename(originFile, targetFile)
+// rename src to dst
+func Rename(srcFileName string, dstFileName string) {
+	err := os.Rename(srcFileName, dstFileName)
 
 	if err != nil{
 		panic(err)
 	}
 }
 
+// returns whether the file path is a directory
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -189,10 +212,12 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
+// returns whether the file path is a file
 func IsFile(path string) bool {
 	return !IsDir(path)
 }
 
+// tells whether a file exists and is readable
 func IsReadable(fileName string) bool {
 	err := syscall.Access(fileName, syscall.O_RDONLY)
 	if err != nil {
@@ -202,6 +227,7 @@ func IsReadable(fileName string) bool {
 	return true
 }
 
+// tells whether a file exists and is writable
 func IsWritable(fileName string) bool {
 
 	err := syscall.Access(fileName, syscall.O_RDWR)
@@ -212,18 +238,20 @@ func IsWritable(fileName string) bool {
 	return true
 }
 
-func Symlink(originDir string, targetDir string) {
-	err := os.Symlink(originDir, targetDir)
+// creates a symbolic link or copy a directory
+func Symlink(srcDirName string, dstDirName string) {
+	err := os.Symlink(srcDirName, dstDirName)
 
 	if err != nil{
 		panic(err)
 	}
 }
 
-func Hardlink(originFile string, targetFiles interface{}) {
+// creates a hard link, or several hard links to a file
+func Hardlink(srcFileName string, dstFileNames interface{}) {
 
 }
-
+// resolves links in paths.
 func Readlink(path string) string{
 	link,err := os.Readlink(path)
 
@@ -233,33 +261,36 @@ func Readlink(path string) string{
 	return link
 }
 
-func MakePathRelative(endPath string, startPath string) {
-
-}
-
+// returns whether the file path is an absolute path
 func IsAbsolutePath(fileName string) bool {
 	return filepath.IsAbs(fileName)
 }
 
+// get dirname
 func Dirname(fileName string) string {
 	return filepath.Dir(fileName)
 }
 
+// appends content to a file
 func AppendToFile(fileName string, content []byte) {
 
 	dir := Dirname(fileName)
 
 	if !Exists(dir) {
-		Mkdir(dir, 0755)
+		Mkdir(dir, 0666)
 	}
 
 	if !IsWritable(fileName) {
 		panic(fmt.Sprintf("Unable to write to the \"%s\" directory.", fileName))
 	}
 
-	file, _ := os.Open(fileName)
+	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE, 0666)
 
-	_, err := file.Write(content)
+	if err != nil{
+		panic(err)
+	}
+
+	_, err = file.Write(content)
 
 	if err != nil {
 		panic(err)
