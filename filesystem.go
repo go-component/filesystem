@@ -14,6 +14,11 @@ import (
 func Mkdir(paths interface{}, mode os.FileMode) {
 
 	for _, pathName := range toIterable(paths) {
+
+		if Exists(pathName){
+			continue
+		}
+
 		err := os.MkdirAll(pathName, mode)
 		if err != nil {
 			panic(err)
@@ -25,13 +30,17 @@ func Mkdir(paths interface{}, mode os.FileMode) {
 // Remove removes the named file or (empty) directory.
 func Remove(files interface{}) {
 
-	for _, file := range toIterable(files) {
+	for _, fileName := range toIterable(files) {
 
-		if !Exists(file) {
+		if fileName == ""{
 			continue
 		}
 
-		err := os.Remove(file)
+		if !Exists(fileName) {
+			continue
+		}
+
+		err := os.Remove(fileName)
 
 		if err != nil {
 			panic(err)
@@ -39,10 +48,15 @@ func Remove(files interface{}) {
 	}
 }
 
+
 // Remove removes the named file or directory with recursive mode.
 func RemoveWithRecur(files interface{}) {
 
 	for _, fileName := range toIterable(files) {
+
+		if fileName == ""{
+			continue
+		}
 
 		if !Exists(fileName) {
 			continue
@@ -50,15 +64,17 @@ func RemoveWithRecur(files interface{}) {
 
 		if IsDir(fileName) {
 			fs, ds := GetFilesAndDirs(fileName)
-			RemoveWithRecur(append(fs, ds...))
-		} else {
-			err := os.Remove(fileName)
-
-			if err != nil {
-				panic(err)
+			moreFiles := append(fs, ds...)
+			if len(moreFiles) > 0{
+				RemoveWithRecur(moreFiles)
 			}
 		}
 
+		err := os.Remove(fileName)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -132,6 +148,7 @@ func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
 			if err != nil {
 				panic(file)
 			}
+			TouchFromTime(fileName, atime, mtime)
 		}
 	}
 }
@@ -224,15 +241,15 @@ func GetFilesAndDirs(dirPath string) (files []string, dirs []string) {
 		panic(err)
 	}
 
-	PthSep := string(os.PathSeparator)
+	PathSep := string(os.PathSeparator)
 
 	for _, fi := range dir {
-		if fi.IsDir() { // 目录, 递归遍历
-			dirs = append(dirs, dirPath+PthSep+fi.Name())
-			_, _ = GetFilesAndDirs(dirPath + PthSep + fi.Name())
+		if fi.IsDir() {
+			dirs = append(dirs, dirPath+PathSep+fi.Name())
+			_, _ = GetFilesAndDirs(dirPath + PathSep + fi.Name())
 
 		} else {
-			files = append(files, dirPath+PthSep+fi.Name())
+			files = append(files, dirPath+PathSep+fi.Name())
 		}
 	}
 
@@ -325,17 +342,15 @@ func Dirname(fileName string) string {
 func AppendToFile(fileName string, content []byte) {
 
 	dir := Dirname(fileName)
-
 	if !Exists(dir) {
 		Mkdir(dir, 0666)
 	}
 
-	if !IsWritable(fileName) {
+	if !IsWritable(dir) {
 		panic(fmt.Sprintf("Unable to write to the \"%s\" directory.", fileName))
 	}
 
-	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE, 0666)
-
+	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		panic(err)
 	}
