@@ -11,13 +11,11 @@ var dirs = []string{
 	"filesystem/test-mkdir3",
 }
 
-
 func TestMkdir(t *testing.T) {
-
 
 	Mkdir(dirName, 0755)
 
-	if !Exists(dirName){
+	if !Exists(dirName) {
 		t.Error("Mkdir test failed!")
 	}
 
@@ -30,7 +28,7 @@ func TestMulMkdir(t *testing.T) {
 
 	Mkdir(dirs, 0755)
 
-	if !Exists(dirs){
+	if !Exists(dirs) {
 		t.Error("Multi mkdir test failed!")
 	}
 
@@ -44,7 +42,7 @@ func TestRemove(t *testing.T) {
 	Mkdir(dirName, 0755)
 	Remove(dirName)
 
-	if Exists(dirName){
+	if Exists(dirName) {
 		t.Error("Remove test failed!")
 	}
 }
@@ -54,7 +52,7 @@ func TestMulRemove(t *testing.T) {
 	Mkdir(dirs, 0755)
 	Remove(dirs)
 
-	if Exists(dirs){
+	if Exists(dirs) {
 		t.Error("Multi remove test failed!")
 	}
 }

@@ -25,15 +25,15 @@ func Mkdir(paths interface{}, mode os.FileMode) {
 // Remove removes the named file or (empty) directory.
 func Remove(files interface{}) {
 
-	for _, file := range toIterable(files){
+	for _, file := range toIterable(files) {
 
-		if !Exists(file){
+		if !Exists(file) {
 			continue
 		}
 
 		err := os.Remove(file)
 
-		if err != nil{
+		if err != nil {
 			panic(err)
 		}
 	}
@@ -42,23 +42,22 @@ func Remove(files interface{}) {
 // Remove removes the named file or directory with recursive mode.
 func RemoveWithRecur(files interface{}) {
 
-	for _, fileName := range toIterable(files){
+	for _, fileName := range toIterable(files) {
 
-		if !Exists(fileName){
+		if !Exists(fileName) {
 			continue
 		}
 
-		if IsDir(fileName){
+		if IsDir(fileName) {
 			fs, ds := GetFilesAndDirs(fileName)
 			RemoveWithRecur(append(fs, ds...))
-		}else{
+		} else {
 			err := os.Remove(fileName)
 
-			if err != nil{
+			if err != nil {
 				panic(err)
 			}
 		}
-
 
 	}
 }
