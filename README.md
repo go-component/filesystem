@@ -20,144 +20,158 @@ import "github.com/go-component/filesystem"
 ```go
 func AppendToFile(fileName string, content []byte)
 ```
-appends content to a file
+Appends content to a file.
 
 #### func  Chmod
 
 ```go
 func Chmod(files interface{}, mode os.FileMode)
 ```
-change mode for an array of files or directories.
+Change mode for an array of files or directories.
 
 #### func  ChmodWithRecur
 
 ```go
 func ChmodWithRecur(files interface{}, mode os.FileMode)
 ```
-change mode for an array of files or directories with recursive
+Change mode for an array of files or directories with recursive mode.
 
 #### func  Chown
 
 ```go
 func Chown(files interface{}, user, group int)
 ```
-change the owner of an array of files or directories
+Change the owner of an array of files or directories.
 
 #### func  ChownWithRecur
 
 ```go
 func ChownWithRecur(files interface{}, user, group int)
 ```
-change the owner of an array of files or directories recursive
+Change the owner of an array of files or directories recursive mode.
 
 #### func  Copy
 
 ```go
 func Copy(srcFileName string, dstFileName string)
 ```
-copies a file
+Copies a file.
 
 #### func  Dirname
 
 ```go
 func Dirname(fileName string) string
 ```
-get dirname
+Return dirname.
 
 #### func  Exists
 
 ```go
 func Exists(paths interface{}) bool
 ```
-checks the existence of files or directories
+Checks the existence of files or directories.
 
 #### func  GetFilesAndDirs
 
 ```go
 func GetFilesAndDirs(dirPath string) (files []string, dirs []string)
 ```
-resolves files and directories
+Resolves files and directories.
 
 #### func  Hardlink
 
 ```go
 func Hardlink(srcFileName string, dstFileNames interface{})
 ```
-creates a hard link, or several hard links to a file
+Creates a hard link, or several hard links to files.
 
 #### func  IsAbsolutePath
 
 ```go
 func IsAbsolutePath(fileName string) bool
 ```
-returns whether the file path is an absolute path
+Return whether the file path is an absolute path.
 
 #### func  IsDir
 
 ```go
 func IsDir(path string) bool
 ```
-returns whether the file path is a directory
+Returns whether the file path is a directory.
 
 #### func  IsFile
 
 ```go
 func IsFile(path string) bool
 ```
-returns whether the file path is a file
+Returns whether the file path is a file.
 
 #### func  IsReadable
 
 ```go
 func IsReadable(fileName string) bool
 ```
-tells whether a file exists and is readable
+Tells whether a file exists and is readable.
 
 #### func  IsWritable
 
 ```go
 func IsWritable(fileName string) bool
 ```
-tells whether a file exists and is writable
+Tells whether a file exists and is writable.
 
 #### func  Mkdir
 
 ```go
 func Mkdir(paths interface{}, mode os.FileMode)
 ```
-creates a directory of directory or directories.
+Creates a directory of directory or directories.
 
 #### func  Readlink
 
 ```go
 func Readlink(path string) string
 ```
-resolves links in paths.
+Resolves links in paths.
+
+#### func  Remove
+
+```go
+func Remove(files interface{})
+```
+Remove removes the named file or (empty) directory.
+
+#### func  RemoveWithRecur
+
+```go
+func RemoveWithRecur(files interface{})
+```
+Remove removes the named file or directory with recursive mode.
 
 #### func  Rename
 
 ```go
 func Rename(srcFileName string, dstFileName string)
 ```
-rename src to dst
+Rename src to dst.
 
 #### func  Symlink
 
 ```go
 func Symlink(srcDirName string, dstDirName string)
 ```
-creates a symbolic link or copy a directory
+Creates a symbolic link or copy a directory.
 
 #### func  Touch
 
 ```go
 func Touch(files interface{})
 ```
-creates new files
+Creates new files if not exist.
 
 #### func  TouchFromTime
 
 ```go
 func TouchFromTime(files interface{}, atime time.Time, mtime time.Time)
 ```
-sets access and modification time of files
+Sets access and modification time of files.
