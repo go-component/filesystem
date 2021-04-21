@@ -41,7 +41,7 @@ func TestMultiMkdir(t *testing.T) {
 	Mkdir(dirs, 0755)
 
 	if !Exists(dirs) {
-		t.Error("Multi mkdir test failed!")
+		t.Error("Multi Mkdir test failed!")
 	}
 
 	Remove(dirs)
@@ -65,12 +65,12 @@ func TestMultiRemove(t *testing.T) {
 
 	Mkdir(dirs, 0755)
 	if !Exists(dirs) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi Remove test failed!")
 	}
 	Remove(dirs)
 
 	if Exists(dirs) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi Remove test failed!")
 	}
 }
 
@@ -78,12 +78,12 @@ func TestRemoveWithRecur(t *testing.T) {
 
 	Mkdir(recursiveDirName, 0755)
 	if !Exists(recursiveDirName) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi Remove test failed!")
 	}
 	RemoveWithRecur(recursiveDirRoot)
 
 	if Exists(recursiveDirName) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi Remove test failed!")
 	}
 }
 
@@ -91,12 +91,12 @@ func TestMultiRemoveWithRecur(t *testing.T) {
 
 	Mkdir(recursiveDirs, 0755)
 	if !Exists(recursiveDirs) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi RemoveWithRecur test failed!")
 	}
 	RemoveWithRecur(recursiveDirRoot)
 
 	if Exists(recursiveDirs) {
-		t.Error("Multi remove test failed!")
+		t.Error("Multi RemoveWithRecur test failed!")
 	}
 }
 
@@ -109,7 +109,7 @@ func TestAppendToFile(t *testing.T) {
 		t.Error("AppendToFile test failed!")
 	}
 
-	Remove(fileName)
+	RemoveWithRecur(dirRoot)
 
 }
 
@@ -128,7 +128,7 @@ func TestCopy(t *testing.T) {
 		t.Error("Copy test failed!")
 	}
 
-	Remove([]string{srcFileName, dstFileName})
+	RemoveWithRecur(dirRoot)
 
 }
 
@@ -141,7 +141,7 @@ func TestTouch(t *testing.T) {
 		t.Error("Touch test failed!")
 	}
 
-	Remove(fileName)
+	RemoveWithRecur(dirRoot)
 
 }
 
@@ -157,7 +157,7 @@ func TestMultiTouch(t *testing.T) {
 	if !Exists(files){
 		t.Error("Touch test failed!")
 	}
-	Remove(files)
+	RemoveWithRecur(dirRoot)
 }
 
 func TestTouchFromTime(t *testing.T) {
@@ -171,12 +171,12 @@ func TestTouchFromTime(t *testing.T) {
 		t.Error("TouchFromTime test failed!")
 	}
 
-	Remove(fileName)
+	RemoveWithRecur(dirRoot)
 
 	Touch(fileName)
 
 	TouchFromTime(fileName, now, now)
-	Remove(fileName)
+	RemoveWithRecur(dirRoot)
 }
 
 func TestMultiTouchFromTime(t *testing.T) {
@@ -191,15 +191,15 @@ func TestMultiTouchFromTime(t *testing.T) {
 	TouchFromTime(files, now, now)
 
 	if !Exists(files){
-		t.Error("Multi touchFromTime test failed!")
+		t.Error("Multi TouchFromTime test failed!")
 	}
 
-	Remove(files)
+	RemoveWithRecur(dirRoot)
 
 	Touch(files)
 
 	TouchFromTime(files, now, now)
-	Remove(files)
+	RemoveWithRecur(dirRoot)
 }
 
 func TestChmod(t *testing.T) {
@@ -213,7 +213,7 @@ func TestChmod(t *testing.T) {
 
 	Chmod(fileName, 0755)
 
-	Remove(fileName)
+	RemoveWithRecur(dirRoot)
 }
 
 func TestMultiChmod(t *testing.T) {
@@ -226,11 +226,40 @@ func TestMultiChmod(t *testing.T) {
 	Touch(files)
 
 	if !Exists(files){
-		t.Error("Multi chmod test failed!")
+		t.Error("Multi Chmod test failed!")
 	}
 
 	Chmod(files,755)
 
-	Remove(files)
+	RemoveWithRecur(dirRoot)
 }
 
+func TestChmodWithRecur(t *testing.T) {
+	fileName := recursiveDirRoot+"/chmod.txt"
+
+	Touch(fileName)
+
+	if !Exists(fileName){
+		t.Error("ChmodWithRecur test failed!")
+	}
+
+	ChmodWithRecur(dirRoot, 0755)
+	RemoveWithRecur(dirRoot)
+}
+
+func TestMultiChmodWithRecur(t *testing.T) {
+	fileName := []string{
+		recursiveDirRoot+"/chmod1.txt",
+		recursiveDirRoot+"/chmod2.txt",
+		recursiveDirRoot+"/chmod3.txt",
+	}
+
+	Touch(fileName)
+
+	if !Exists(fileName){
+		t.Error("Multi MultiChmodWithRecur test failed!")
+	}
+
+	ChmodWithRecur(dirRoot, 0755)
+	RemoveWithRecur(dirRoot)
+}

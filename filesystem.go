@@ -62,7 +62,7 @@ func RemoveWithRecur(files interface{}) {
 		}
 
 		if IsDir(fileName) {
-			fs, ds := GetFilesAndDirs(fileName)
+			fs, ds := ResolveFilesAndDirs(fileName)
 			moreFiles := append(fs, ds...)
 			if len(moreFiles) > 0 {
 				RemoveWithRecur(moreFiles)
@@ -115,14 +115,20 @@ func Exists(paths interface{}) bool {
 func Touch(files interface{}) {
 
 	for _, fileName := range toIterable(files) {
+
+		dir := Dirname(fileName)
+		if !Exists(dir) {
+			Mkdir(dir, 0755)
+		}
+
 		if !Exists(fileName) {
 			file, err := os.Create(fileName)
 			if err != nil {
-				panic(file)
+				panic(err)
 			}
 			err = file.Close()
 			if err != nil {
-				panic(file)
+				panic(err)
 			}
 		}
 	}
@@ -132,7 +138,10 @@ func Touch(files interface{}) {
 func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
 
 	for _, fileName := range toIterable(files) {
-
+		dir := Dirname(fileName)
+		if !Exists(dir) {
+			Mkdir(dir, 0755)
+		}
 		if Exists(fileName) {
 			err := os.Chtimes(fileName, atime, mtime)
 			if err != nil {
@@ -141,11 +150,11 @@ func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
 		} else {
 			file, err := os.Create(fileName)
 			if err != nil {
-				panic(file)
+				panic(err)
 			}
 			err = file.Close()
 			if err != nil {
-				panic(file)
+				panic(err)
 			}
 			TouchFromTime(fileName, atime, mtime)
 		}
@@ -177,7 +186,7 @@ func ChmodWithRecur(files interface{}, mode os.FileMode) {
 		}
 		if IsDir(fileName) {
 
-			fs, ds := GetFilesAndDirs(fileName)
+			fs, ds := ResolveFilesAndDirs(fileName)
 
 			ChmodWithRecur(append(fs, ds...), mode)
 
@@ -218,7 +227,7 @@ func ChownWithRecur(files interface{}, user, group int) {
 
 		if IsDir(fileName) {
 
-			fs, ds := GetFilesAndDirs(fileName)
+			fs, ds := ResolveFilesAndDirs(fileName)
 
 			ChownWithRecur(append(fs, ds...), user, group)
 
@@ -233,7 +242,7 @@ func ChownWithRecur(files interface{}, user, group int) {
 }
 
 // Resolves files and directories.
-func GetFilesAndDirs(dirPath string) (files []string, dirs []string) {
+func ResolveFilesAndDirs(dirPath string) (files []string, dirs []string) {
 
 	dir, err := ioutil.ReadDir(dirPath)
 	if err != nil {
@@ -245,7 +254,7 @@ func GetFilesAndDirs(dirPath string) (files []string, dirs []string) {
 	for _, fi := range dir {
 		if fi.IsDir() {
 			dirs = append(dirs, dirPath+PathSep+fi.Name())
-			_, _ = GetFilesAndDirs(dirPath + PathSep + fi.Name())
+			_, _ = ResolveFilesAndDirs(dirPath + PathSep + fi.Name())
 
 		} else {
 			files = append(files, dirPath+PathSep+fi.Name())
@@ -342,7 +351,7 @@ func AppendToFile(fileName string, content []byte) {
 
 	dir := Dirname(fileName)
 	if !Exists(dir) {
-		Mkdir(dir, 0666)
+		Mkdir(dir, 0755)
 	}
 
 	if !IsWritable(dir) {
