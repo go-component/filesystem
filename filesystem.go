@@ -11,7 +11,7 @@ import (
 )
 
 // Creates a directory of directory or directories.
-func Mkdir(paths interface{}, mode os.FileMode) {
+func Mkdir(paths interface{}, mode os.FileMode) error {
 
 	for _, pathName := range toIterable(paths) {
 
@@ -21,14 +21,15 @@ func Mkdir(paths interface{}, mode os.FileMode) {
 
 		err := os.MkdirAll(pathName, mode)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
+	return nil
 }
 
 // Remove removes the named file or (empty) directory.
-func Remove(files interface{}) {
+func Remove(files interface{}) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -43,13 +44,14 @@ func Remove(files interface{}) {
 		err := os.Remove(fileName)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 // Remove removes the named file or directory with recursive mode.
-func RemoveWithRecur(files interface{}) {
+func RemoveWithRecur(files interface{}) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -62,40 +64,51 @@ func RemoveWithRecur(files interface{}) {
 		}
 
 		if IsDir(fileName) {
-			fs, ds := ResolveFilesAndDirs(fileName)
+			fs, ds, err := ResolveFilesAndDirs(fileName)
+			if err != nil {
+				return err
+			}
+
 			moreFiles := append(fs, ds...)
 			if len(moreFiles) > 0 {
-				RemoveWithRecur(moreFiles)
+				err := RemoveWithRecur(moreFiles)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
 		err := os.Remove(fileName)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 // Copies a file.
-func Copy(srcFileName string, dstFileName string) {
+func Copy(srcFileName string, dstFileName string) error {
 
 	srcFile, err := os.Open(srcFileName)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	dstFile, err := os.OpenFile(dstFileName, os.O_CREATE|os.O_WRONLY, 0666)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = io.Copy(dstFile, srcFile)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // Checks the existence of files or directories.
@@ -112,57 +125,70 @@ func Exists(paths interface{}) bool {
 }
 
 // Creates new files if not exist.
-func Touch(files interface{}) {
+func Touch(files interface{}) error {
 
 	for _, fileName := range toIterable(files) {
 
 		dir := Dirname(fileName)
 		if !Exists(dir) {
-			Mkdir(dir, 0755)
+			err := Mkdir(dir, 0755)
+			if err != nil {
+				return err
+			}
 		}
 
 		if !Exists(fileName) {
 			file, err := os.Create(fileName)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			err = file.Close()
 			if err != nil {
-				panic(err)
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
 // Sets access and modification time of files.
-func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) {
+func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) error {
 
 	for _, fileName := range toIterable(files) {
 		dir := Dirname(fileName)
 		if !Exists(dir) {
-			Mkdir(dir, 0755)
+			err := Mkdir(dir, 0755)
+			if err != nil {
+				return err
+			}
 		}
 		if Exists(fileName) {
 			err := os.Chtimes(fileName, atime, mtime)
 			if err != nil {
-				panic(err)
+				return err
 			}
 		} else {
 			file, err := os.Create(fileName)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			err = file.Close()
 			if err != nil {
-				panic(err)
+				return err
 			}
-			TouchFromTime(fileName, atime, mtime)
+			err = TouchFromTime(fileName, atime, mtime)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
 
 // Change mode for an array of files or directories.
-func Chmod(files interface{}, mode os.FileMode) {
+func Chmod(files interface{}, mode os.FileMode) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -171,13 +197,14 @@ func Chmod(files interface{}, mode os.FileMode) {
 		}
 		err := os.Chmod(fileName, mode)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 // Change mode for an array of files or directories with recursive mode.
-func ChmodWithRecur(files interface{}, mode os.FileMode) {
+func ChmodWithRecur(files interface{}, mode os.FileMode) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -186,22 +213,30 @@ func ChmodWithRecur(files interface{}, mode os.FileMode) {
 		}
 		if IsDir(fileName) {
 
-			fs, ds := ResolveFilesAndDirs(fileName)
+			fs, ds, err := ResolveFilesAndDirs(fileName)
+			if err != nil {
+				return err
+			}
 
-			ChmodWithRecur(append(fs, ds...), mode)
+			err = ChmodWithRecur(append(fs, ds...), mode)
+			if err != nil {
+				return err
+			}
 
 		} else {
 			err := os.Chmod(fileName, mode)
 
 			if err != nil {
-				panic(err)
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
 // Change the owner of an array of files or directories.
-func Chown(files interface{}, user, group int) {
+func Chown(files interface{}, user, group int) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -211,13 +246,15 @@ func Chown(files interface{}, user, group int) {
 		err := os.Chown(fileName, user, group)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 // Change the owner of an array of files or directories recursive mode.
-func ChownWithRecur(files interface{}, user, group int) {
+func ChownWithRecur(files interface{}, user, group int) error {
 
 	for _, fileName := range toIterable(files) {
 
@@ -227,26 +264,34 @@ func ChownWithRecur(files interface{}, user, group int) {
 
 		if IsDir(fileName) {
 
-			fs, ds := ResolveFilesAndDirs(fileName)
+			fs, ds, err := ResolveFilesAndDirs(fileName)
+			if err != nil {
+				return err
+			}
 
-			ChownWithRecur(append(fs, ds...), user, group)
+			err = ChownWithRecur(append(fs, ds...), user, group)
+			if err != nil {
+				return err
+			}
 
 		} else {
 			err := os.Chown(fileName, user, group)
 
 			if err != nil {
-				panic(err)
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
 // Resolves files and directories.
-func ResolveFilesAndDirs(dirPath string) (files []string, dirs []string) {
+func ResolveFilesAndDirs(dirPath string) (files []string, dirs []string, err error) {
 
 	dir, err := ioutil.ReadDir(dirPath)
 	if err != nil {
-		panic(err)
+		return []string{}, []string{}, err
 	}
 
 	PathSep := string(os.PathSeparator)
@@ -254,24 +299,26 @@ func ResolveFilesAndDirs(dirPath string) (files []string, dirs []string) {
 	for _, fi := range dir {
 		if fi.IsDir() {
 			dirs = append(dirs, dirPath+PathSep+fi.Name())
-			_, _ = ResolveFilesAndDirs(dirPath + PathSep + fi.Name())
+			_, _, _ = ResolveFilesAndDirs(dirPath + PathSep + fi.Name())
 
 		} else {
 			files = append(files, dirPath+PathSep+fi.Name())
 		}
 	}
 
-	return files, dirs
+	return files, dirs, nil
 }
 
 // Rename src to dst.
-func Rename(srcFileName string, dstFileName string) {
+func Rename(srcFileName string, dstFileName string) error {
 
 	err := os.Rename(srcFileName, dstFileName)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // Returns whether the file path is a directory.
@@ -313,27 +360,33 @@ func IsWritable(fileName string) bool {
 }
 
 // Creates a symbolic link or copy a directory.
-func Symlink(srcDirName string, dstDirName string) {
+func Symlink(srcDirName string, dstDirName string) error {
 	err := os.Symlink(srcDirName, dstDirName)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // Creates a hard link, or several hard links to files.
-func Hardlink(srcFileName string, dstFileNames interface{}) {
-
+func Hardlink(srcFileName string, dstFileName string) error {
+	err := os.Link(srcFileName, dstFileName)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Resolves links in paths.
-func Readlink(path string) string {
+func Readlink(path string) (string, error) {
 	link, err := os.Readlink(path)
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return link
+	return link, nil
 }
 
 // Return whether the file path is an absolute path.
@@ -347,11 +400,14 @@ func Dirname(fileName string) string {
 }
 
 // Appends content to a file.
-func AppendToFile(fileName string, content []byte) {
+func AppendToFile(fileName string, content []byte) error {
 
 	dir := Dirname(fileName)
 	if !Exists(dir) {
-		Mkdir(dir, 0755)
+		err := Mkdir(dir, 0755)
+		if err != nil {
+			return err
+		}
 	}
 
 	if !IsWritable(dir) {
@@ -360,14 +416,16 @@ func AppendToFile(fileName string, content []byte) {
 
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = file.Write(content)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 func toIterable(files interface{}) []string {

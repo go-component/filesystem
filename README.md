@@ -18,42 +18,42 @@ import "github.com/go-component/filesystem"
 #### func  AppendToFile
 
 ```go
-func AppendToFile(fileName string, content []byte)
+func AppendToFile(fileName string, content []byte) error
 ```
 Appends content to a file.
 
 #### func  Chmod
 
 ```go
-func Chmod(files interface{}, mode os.FileMode)
+func Chmod(files interface{}, mode os.FileMode) error
 ```
 Change mode for an array of files or directories.
 
 #### func  ChmodWithRecur
 
 ```go
-func ChmodWithRecur(files interface{}, mode os.FileMode)
+func ChmodWithRecur(files interface{}, mode os.FileMode) error
 ```
 Change mode for an array of files or directories with recursive mode.
 
 #### func  Chown
 
 ```go
-func Chown(files interface{}, user, group int)
+func Chown(files interface{}, user, group int) error
 ```
 Change the owner of an array of files or directories.
 
 #### func  ChownWithRecur
 
 ```go
-func ChownWithRecur(files interface{}, user, group int)
+func ChownWithRecur(files interface{}, user, group int) error
 ```
 Change the owner of an array of files or directories recursive mode.
 
 #### func  Copy
 
 ```go
-func Copy(srcFileName string, dstFileName string)
+func Copy(srcFileName string, dstFileName string) error
 ```
 Copies a file.
 
@@ -71,17 +71,10 @@ func Exists(paths interface{}) bool
 ```
 Checks the existence of files or directories.
 
-#### func  GetFilesAndDirs
-
-```go
-func GetFilesAndDirs(dirPath string) (files []string, dirs []string)
-```
-Resolves files and directories.
-
 #### func  Hardlink
 
 ```go
-func Hardlink(srcFileName string, dstFileNames interface{})
+func Hardlink(srcFileName string, dstFileName string) error
 ```
 Creates a hard link, or several hard links to files.
 
@@ -123,55 +116,62 @@ Tells whether a file exists and is writable.
 #### func  Mkdir
 
 ```go
-func Mkdir(paths interface{}, mode os.FileMode)
+func Mkdir(paths interface{}, mode os.FileMode) error
 ```
 Creates a directory of directory or directories.
 
 #### func  Readlink
 
 ```go
-func Readlink(path string) string
+func Readlink(path string) (string, error)
 ```
 Resolves links in paths.
 
 #### func  Remove
 
 ```go
-func Remove(files interface{})
+func Remove(files interface{}) error
 ```
 Remove removes the named file or (empty) directory.
 
 #### func  RemoveWithRecur
 
 ```go
-func RemoveWithRecur(files interface{})
+func RemoveWithRecur(files interface{}) error
 ```
 Remove removes the named file or directory with recursive mode.
 
 #### func  Rename
 
 ```go
-func Rename(srcFileName string, dstFileName string)
+func Rename(srcFileName string, dstFileName string) error
 ```
 Rename src to dst.
+
+#### func  ResolveFilesAndDirs
+
+```go
+func ResolveFilesAndDirs(dirPath string) (files []string, dirs []string, err error)
+```
+Resolves files and directories.
 
 #### func  Symlink
 
 ```go
-func Symlink(srcDirName string, dstDirName string)
+func Symlink(srcDirName string, dstDirName string) error
 ```
 Creates a symbolic link or copy a directory.
 
 #### func  Touch
 
 ```go
-func Touch(files interface{})
+func Touch(files interface{}) error
 ```
 Creates new files if not exist.
 
 #### func  TouchFromTime
 
 ```go
-func TouchFromTime(files interface{}, atime time.Time, mtime time.Time)
+func TouchFromTime(files interface{}, atime time.Time, mtime time.Time) error
 ```
 Sets access and modification time of files.
