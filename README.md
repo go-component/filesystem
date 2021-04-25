@@ -13,7 +13,23 @@ import "github.com/go-component/filesystem"
 ```
 
 
-## Usage
+# Usage
+
+support single or multiple for file operation
+
+```
+
+// single
+Mkdir("a", 0755)
+
+// multiple
+
+Mkdir([]string{"a", "b"}, 0755)
+
+
+```
+
+# More Usage
 
 #### func  AppendToFile
 
